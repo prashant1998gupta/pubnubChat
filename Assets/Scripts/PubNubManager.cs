@@ -2,6 +2,8 @@ using System;
 using PubNubAPI;
 using UnityEngine;
 using System.Collections.Generic;
+using Pathfinding.Serialization.JsonFx;
+//using Pathfinding.Serialization.JsonFx;
 
 public class PubNubManager : MonoBehaviour
 {
@@ -87,7 +89,7 @@ public class PubNubManager : MonoBehaviour
     void SubscribeCallbackHandler(object sender, EventArgs e)
     {
         SubscribeEventEventArgs mea = e as SubscribeEventEventArgs;
-        //Debug.LogWarning("Affacted Channel : " + JsonWriter.Serialize(mea.Status.AffectedChannels));
+        Debug.LogWarning("Affacted Channel : " + JsonWriter.Serialize(mea.Status.AffectedChannels));
 
         if (mea.Status != null)
         {
@@ -101,14 +103,20 @@ public class PubNubManager : MonoBehaviour
         }
         if (mea.MessageResult != null)
         {
-            //Debug.Log("Chnl : " + mea.MessageResult.Channel);
+            Debug.Log("Chnl : " + mea.MessageResult.Channel);
             Dictionary<string, object> chatPayload = (Dictionary<string, object>)mea.MessageResult.Payload;
+
+
+           /* foreach (var item in chatPayload)
+            {
+                Debug.Log("Key : " + item.Key + " Value : " + item.Value);
+            }*/
 
             MessageRecieve(true, chatPayload, mea.MessageResult.Timetoken, false);
         }
         if (mea.PresenceEventResult != null)
         {
-            Debug.Log("SubscribeCallback in presence" + mea.PresenceEventResult.Channel + mea.PresenceEventResult.Occupancy + mea.PresenceEventResult.Event);
+            Debug.Log($"SubscribeCallback in presence { mea.PresenceEventResult.Channel } { mea.PresenceEventResult.Occupancy } { mea.PresenceEventResult.Event}");
         }
         if (mea.SignalEventResult != null)
         {

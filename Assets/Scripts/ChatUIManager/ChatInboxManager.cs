@@ -49,16 +49,9 @@ public class ChatInboxManager : MonoBehaviour
 
                     /*foreach (KeyValuePair<string, object> item in payload)
                         Debug.Log("Key : " + item.Key + ", Value : " + item.Value);*/
-                    if(StaticDataManager.instance.chatType == ChatType.Privete)
-                    {
-
+                   
                         CreateChat(true, payload, pnMessageResult.Timetoken, false);
-                    }
-                    else
-                    {
-                         CreateChat(true, payload, pnMessageResult.Timetoken, false);
-                        //CreateChatForGroup(true, payload, pnMessageResult.Timetoken, false);
-                    }
+                  
 
                 }
             }
@@ -69,94 +62,33 @@ public class ChatInboxManager : MonoBehaviour
         }
     }
 
-    private void CreateChatForGroup(bool state, Dictionary<string, object> payLoad, long timeToken, bool isHistory)
-    {
-        if (state)
-        {
-            string[] IDs;
-            bool isMine = false;
-            IDs = payLoad["chatID"].ToString().Split('_');
-            if (IDs[0] == StaticDataManager.myUUID)
-            {
-                isMine = true;
-            }
-            else
-            {
-                isMine = false;
-            }
-
-            ChatUIManager.instance.chatContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-
-            //Debug.Log("In here");
-            double messageTimestamp = timeToken / 10000000;
-            string messageTime = "";
-            //Debug.Log("Time : " + messageTimestamp);
-
-            if (timeToken <= 0)
-                messageTime = DateTime.Now.ToString("hh:mm tt");
-            else
-                messageTime = UnixTimeStampToDateTime(messageTimestamp);
-
-            GameObject chatBox = Instantiate(
-                      ChatUIManager.instance.chatPrefab,
-                      ChatUIManager.instance.chatContainer);
-
-           
-
-
-            if (isMine)
-                {
-                    //Debug.Log("is mine");
-                    chatBox.GetComponent<Image>().color = myMessage;
-                    chatBox.GetComponent<MessageData>().myName.alignment = (TextAnchor)TextAlignment.Right;
-                }
-                else
-                {
-                    //Debug.Log("is other");
-                    chatBox.GetComponent<Image>().color = otherMessage;
-                    chatBox.GetComponent<MessageData>().myName.alignment = (TextAnchor)TextAlignment.Left;
-                }
-
-            /*Debug.Log("Payload data : " + payLoad["username"].ToString() +
-                "\n" + payLoad["text"].ToString() +
-                "\n" + messageTime);*/
-
-
-
-            chatBox.GetComponent<MessageData>().myName.text = payLoad["username"].ToString();
-            chatBox.GetComponent<MessageData>().message.text = payLoad["text"].ToString();
-            chatBox.GetComponent<MessageData>().time.text = messageTime;
-
-        }
-        else
-        {
-            Debug.LogError("Failed to send message..");
-        }
-    }
 
 
     private void CreateChat(bool state, Dictionary<string, object> payLoad, long timeToken, bool isHistory)
     {
         if (state)
         {
+            string chatType = payLoad["chatType"].ToString();
+            string chatTypeOnButtonClick = StaticDataManager.instance.chatType.ToString();
+            Debug.Log($"this is chat type that send with msg {chatType} and current chat wiht button click is {chatTypeOnButtonClick}");
             string[] IDs;
             string otherUUID;
-            bool isMine = false;
+            bool isMineMassage = false;
             IDs = payLoad["chatID"].ToString().Split('_');
             if (IDs[0] == StaticDataManager.myUUID)
             {
-                isMine = true;
+                isMineMassage = true;
                 otherUUID = IDs[1];
-                Debug.Log($"this is my uuid {otherUUID}");
+                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.currentUserUUID}");
             }
             else
             {
-                isMine = false;
+                isMineMassage = false;
                 otherUUID = IDs[0];
-                Debug.Log($"this is my uuid {otherUUID}");
+                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.currentUserUUID}");
             }
 
-            if (otherUUID == StaticDataManager.currentUserUUID)
+            if (otherUUID == StaticDataManager.currentUserUUID )//|| chatTypeOnButtonClick == chatType)
             {
                 //Debug.Log("In here");
                 double messageTimestamp = timeToken / 10000000;
@@ -180,27 +112,30 @@ public class ChatInboxManager : MonoBehaviour
                 }
 
                 ChatUIManager.instance.chatContainer.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
-                if (isMine)
+                if (isMineMassage)
                 {
                     //Debug.Log("is mine");
-                    chatBox.GetComponent<Image>().color = myMessage;
+                  //  chatBox.GetComponent<Image>().color = myMessage;
                     chatBox.GetComponent<MessageData>().myName.alignment = (TextAnchor)TextAlignment.Right;
                 }
                 else
                 {
                     //Debug.Log("is other");
-                    chatBox.GetComponent<Image>().color = otherMessage;
+                   // chatBox.GetComponent<Image>().color = otherMessage;
                     chatBox.GetComponent<MessageData>().myName.alignment = (TextAnchor)TextAlignment.Left;
                 }
 
-                Debug.Log("Payload data : " + payLoad["username"].ToString() +
+               /* Debug.Log("Payload data : " + payLoad["username"].ToString() +
                     "\n" + payLoad["text"].ToString() +
-                    "\n" + messageTime);
+                    "\n" + messageTime);*/
 
                 chatBox.GetComponent<MessageData>().myName.text = payLoad["username"].ToString();
                 chatBox.GetComponent<MessageData>().message.text = payLoad["text"].ToString();
                 chatBox.GetComponent<MessageData>().time.text = messageTime;
             }
+
+           
+
         }
         else
         {
@@ -223,17 +158,7 @@ public class ChatInboxManager : MonoBehaviour
 
                 StaticDataManager.AllChatMessages.Insert(0, tempResult);
 
-
-                if(StaticDataManager.instance.chatType == ChatType.Privete)
-                {
                     CreateChat(true, chatmessage, histItem.Timetoken, true);
-                }
-                else
-                {
-                    CreateChat(true, chatmessage, histItem.Timetoken, true);
-                    //CreateChatForGroup(true, chatmessage, histItem.Timetoken, true);
-                }
-
             }
         }
         else

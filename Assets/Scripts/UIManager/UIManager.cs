@@ -184,6 +184,7 @@ public class UIManager : MonoBehaviour
             MainPanel.SetActive(false);
             UserStateChange(true);
             StaticDataManager.instance.Name = playerName.text;
+            StaticDataManager.myName = playerName.text;
         }
 
         //OnUserSummitButton();

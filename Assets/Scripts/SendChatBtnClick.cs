@@ -26,12 +26,18 @@ public class SendChatBtnClick : MonoBehaviour
             {"uuid", StaticDataManager.myUUID},
             {"username", StaticDataManager.myName},
             {"text", ChatUIManager.instance.chatInputField.text},
-            {"chatID", StaticDataManager.myUUID + "_" + StaticDataManager.currentUserUUID}
+            {"chatID", StaticDataManager.myUUID + "_" + StaticDataManager.currentUserUUID},
+            {"chatType" , StaticDataManager.instance.chatType.ToString()}
         };
 
         // Dictionary<string, object> payload = cpph.SetFCMPayload(fcm).SetCommonPayload(commonPayload).BuildPayload();
         Dictionary<string, object> payload = cpph.SetCommonPayload(commonPayload).BuildPayload();
 
+        //foreach (KeyValuePair<string, object> item in payload)
+      /*  foreach (var item in payload)
+        {
+            Debug.Log("Key : " + item.Key + " Value : " + item.Value);
+        }*/
 
         if (StaticDataManager.instance.chatType == ChatType.Globel)
         {

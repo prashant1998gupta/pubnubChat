@@ -75,7 +75,7 @@ public class ChatUIManager : MonoBehaviour
     {
         /*if (StaticDataManager.instance.gameState == GameState.Build)
             Firebase.Messaging.FirebaseMessaging.TokenReceived += OnTokenReceived;*/
-        UIManager.UserStateChange += UserStateChangedCallback;
+       
         UIManager.UserStateChange += UserStateChangedCallback;
     }
 
@@ -83,7 +83,7 @@ public class ChatUIManager : MonoBehaviour
     {
        /* if (StaticDataManager.instance.gameState == GameState.Build)
             Firebase.Messaging.FirebaseMessaging.TokenReceived -= OnTokenReceived;*/
-        UIManager.UserStateChange -= UserStateChangedCallback;
+       
         UIManager.UserStateChange -= UserStateChangedCallback;
     }
 
