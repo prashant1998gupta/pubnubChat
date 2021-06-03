@@ -11,11 +11,13 @@ public class ChatUIManager : MonoBehaviour
    // [Header("Login Panel")]
    // public GameObject loginPanel;
 
-   // [Header("User List Panel")]
-   // public GameObject usersListPanel;
+    [Header("User List Panel")]
+    public GameObject usersListPanel;
     //public GameObject ChatPanel;
-   // public Transform usersPrefabListContainer;
-   // public GameObject userPrefab;
+    public Transform usersPrefabListContainer;
+    public GameObject userPrefab;
+    public Button listBackButton;
+
 
     [Header("Chat Inbox Panel")]
     public GameObject chatInboxPanel;
@@ -38,14 +40,34 @@ public class ChatUIManager : MonoBehaviour
     private void Awake() => instance = this;
     private void Start()
     {
+        sendChatBtn.interactable = false;
         //loginPanel.SetActive(true);
-        //usersListPanel.SetActive(false);
-        //chatInboxPanel.SetActive(false);
+        usersListPanel.SetActive(false);
+        chatInboxPanel.SetActive(false);
 
         backBtn.onClick.AddListener(OnBackButtonClick);
         chatHistoryBtn.onClick.AddListener(OnHistoryBtnClick);
 
         sendChatBtn.onClick.AddListener(OnClickSendButton);
+        listBackButton.onClick.AddListener(OnClickListBackBtn);
+        chatInputField.onValueChanged.AddListener(OnInputValuChange);
+    }
+
+    private void OnInputValuChange(string arg0)
+    {
+        if(string.IsNullOrEmpty(chatInputField.text))
+        {
+            sendChatBtn.interactable = false;
+        }
+        else
+        {
+            sendChatBtn.interactable = true;
+        }
+    }
+
+    private void OnClickListBackBtn()
+    {
+        usersListPanel.SetActive(false);
     }
 
     private void OnClickSendButton()
@@ -57,7 +79,7 @@ public class ChatUIManager : MonoBehaviour
     {
        /* PubNubManager.instance.GetHistory(
            StaticDataManager.myUUID,
-           StaticDataManager.currentUserUUID,
+           StaticDataManager.opponentUUID,
            StaticDataManager.HistoryMsgCount);*/
     }
 
@@ -67,8 +89,29 @@ public class ChatUIManager : MonoBehaviour
         UIManager.instance.ButtonPanel.SetActive(true);
         ChatUIManager.instance.chatInboxPanel.SetActive(false);
 
-        StaticDataManager.currentUserUUID = null;
+        StaticDataManager.opponentUUID = null;
         ChatUIManager.instance.chatInputField.text = "";
+
+
+        if (StaticDataManager.instance.chatType == ChatType.Globel)
+        {
+            UIManager.instance.globelMsgBg.SetActive(false);
+            StaticDataManager.instance.globelMsg = 0;
+            UIManager.instance.globelMsg.text = "";
+        }
+        else if (StaticDataManager.instance.chatType == ChatType.PWR_BWR)
+        {
+            UIManager.instance.modeMsgBg.SetActive(false);
+            StaticDataManager.instance.modeMsg = 0;
+            UIManager.instance.modeMsg.text = "";
+        }
+        else if (StaticDataManager.instance.chatType == ChatType.Clan)
+        {
+            UIManager.instance.clanMsgBg.SetActive(false);
+            StaticDataManager.instance.clanMsg = 0;
+            UIManager.instance.clanMasg.text = "";
+        }
+
     }
 
     private void OnEnable()
@@ -99,10 +142,9 @@ public class ChatUIManager : MonoBehaviour
         {
             //usersListPanel.SetActive(true);
             //loginPanel.SetActive(false);
-            // GenerateUsersList();
+            GenerateUsersList();
 
             PubNubManager.instance.PubNubConfig(StaticDataManager.myUUID);
-
         }
         else
         {
@@ -111,12 +153,12 @@ public class ChatUIManager : MonoBehaviour
         }
     }
 
-  /*  private void GenerateUsersList()
+    private void GenerateUsersList()
     {
         StartCoroutine(CreateUsers());
-    }*/
+    }
 
-   /* IEnumerator CreateUsers()
+    IEnumerator CreateUsers()
     {
         foreach (Transform obj in usersPrefabListContainer)
             Destroy(obj.gameObject);
@@ -124,32 +166,94 @@ public class ChatUIManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         PopulateUserContainer();
-    }*/
+    }
 
-  /*  private void PopulateUserContainer()
+    private void PopulateUserContainer()
     {
         for (int i = 0; i < StaticDataManager.instance.staticUsersInfo.Count; i++)
         {
-            GameObject entry = Instantiate(userPrefab, usersPrefabListContainer);
+           // GameObject entry = Instantiate(userPrefab, usersPrefabListContainer);
+
+            StaticUsersInfo data = new StaticUsersInfo();
+
+
+            if(i==0)
+            {
+                data.isMine = true;
+                data.userName = StaticDataManager.instance.Name;
+                data.gameModeName = StaticDataManager.instance.ModeGroup;
+                data.clanName = StaticDataManager.instance.ClanGroup;
+                data.UUID = StaticDataManager.myUUID;
+
+                StaticDataManager.instance.staticUsersInfo[0].isMine = data.isMine;
+                StaticDataManager.instance.staticUsersInfo[0].userName = data.userName;
+                StaticDataManager.instance.staticUsersInfo[0].gameModeName = data.gameModeName;
+                StaticDataManager.instance.staticUsersInfo[0].clanName = data.clanName;
+                StaticDataManager.instance.staticUsersInfo[0].UUID = data.UUID;
+            }
+            else
+            {
+                data.isMine = false;
+                data.userName = "Gauest" + UnityEngine.Random.Range(100000, 1000000);
+                data.gameModeName = "PWR";
+                data.clanName = "PWR A";
+                data.UUID = "UUID" + UnityEngine.Random.Range(1000000, 100000000);
+
+
+                StaticDataManager.instance.staticUsersInfo[i].isMine = data.isMine;
+                StaticDataManager.instance.staticUsersInfo[i].userName = data.userName;
+                StaticDataManager.instance.staticUsersInfo[i].gameModeName = data.gameModeName;
+                StaticDataManager.instance.staticUsersInfo[i].clanName = data.clanName;
+                StaticDataManager.instance.staticUsersInfo[i].UUID = data.UUID;
+            }
+
+        }
+
+
+
+        for (int i = 0; i < StaticDataManager.instance.staticUsersInfo.Count; i++)
+        {
+            GameObject entry1 = Instantiate(userPrefab, usersPrefabListContainer);
+
+            GameObject entry = entry1.transform.GetChild(0).gameObject;
 
             StaticUsersInfo data = StaticDataManager.instance.staticUsersInfo[i];
 
-            entry.GetComponent<UserData>().Init(
+
+            if (i == 0)
+            {
+
+                 entry.transform.SetAsFirstSibling();
+
+                entry.GetComponent<UserData>().isMine = data.isMine;
+                entry.GetComponent<UserData>().myName = data.userName;
+                entry.GetComponent<UserData>().gameModeName = data.gameModeName;
+                entry.GetComponent<UserData>().clanName = data.clanName;
+                entry.GetComponent<UserData>().myUUID = data.UUID;
+
+                entry.GetComponent<UserData>().Init(
+                data.isMine,
                 data.userName,
+                data.gameModeName,
+                data.clanName,
                 data.UUID);
 
-            if (data.isMine)
-            {
-                entry.transform.SetAsFirstSibling();
-                StaticDataManager.myName = data.userName;
-                StaticDataManager.myUUID = data.UUID;
-                entry.GetComponent<UserData>().isMine = true;
+
                 entry.GetComponent<Button>().interactable = false;
             }
             else
-                entry.GetComponent<UserData>().isMine = false;
-        }
+            {
+                entry.GetComponent<UserData>().Init(
+                data.isMine,
+                data.userName,
+                data.gameModeName,
+                data.clanName,
+                data.UUID);
 
-        PubNubManager.instance.PubNubConfig(StaticDataManager.myUUID);
-    }*/
+                 entry.GetComponent<UserData>().isMine = false;
+            }
+
+        }
+         //PubNubManager.instance.PubNubConfig(StaticDataManager.myUUID);
+    }
 }

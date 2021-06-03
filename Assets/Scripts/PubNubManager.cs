@@ -80,8 +80,8 @@ public class PubNubManager : MonoBehaviour
             UUID = UUID
         };
         pubnub = new PubNub(pnConfiguration, this.gameObject);
-
-        SubscribeToMyselfAndGroups(UUID);
+       // SubscribeToGroups();
+        SubscribeToMyselfAndGroup(UUID);
 
         pubnub.SubscribeCallback += SubscribeCallbackHandler;
     }
@@ -103,7 +103,7 @@ public class PubNubManager : MonoBehaviour
         }
         if (mea.MessageResult != null)
         {
-            Debug.Log("Chnl : " + mea.MessageResult.Channel);
+            Debug.Log("Chnl : " + mea.MessageResult.Channel + "      " + StaticDataManager.IsMineMsg);
             Dictionary<string, object> chatPayload = (Dictionary<string, object>)mea.MessageResult.Payload;
 
 
@@ -114,13 +114,115 @@ public class PubNubManager : MonoBehaviour
             if(!StaticDataManager.IsMineMsg)
             {
                 Debug.LogError($"this is not my sms {StaticDataManager.IsMineMsg}");
+
+                string chatID = chatPayload["chatID"].ToString();
+                string[] PrivateUUIDOther = chatID.Split('_');
+
+                bool uerExits = true;
+
+                for (int i = 0; i < StaticDataManager.instance.staticUsersInfo.Count; i++)
+                {
+                    if(StaticDataManager.instance.staticUsersInfo[i].UUID == chatPayload["uuid"].ToString())//chatID
+                    {
+                        uerExits = true;
+                        Debug.Log($"use alredy exits with uuid {PrivateUUIDOther[0]}");
+                        break;
+                    }
+                    else
+                    {
+                        uerExits = false;
+                    }
+                }
+
+                if(uerExits == false)
+                {
+
+                    GameObject entry1 = Instantiate(ChatUIManager.instance.userPrefab, ChatUIManager.instance.usersPrefabListContainer);
+
+                    GameObject entry = entry1.transform.GetChild(0).gameObject;
+
+                    entry1.transform.SetSiblingIndex(1);
+
+                    entry.GetComponent<UserData>().isMine = false;
+                    entry.GetComponent<UserData>().myName = chatPayload["username"].ToString();
+                    entry.GetComponent<UserData>().gameModeName = "PWR";
+                    entry.GetComponent<UserData>().clanName = "PWR";
+                    entry.GetComponent<UserData>().myUUID = chatPayload["uuid"].ToString();
+
+                    StaticUsersInfo addList = new StaticUsersInfo();
+                    addList.isMine = false;
+                    addList.userName = chatPayload["username"].ToString();
+                    addList.gameModeName = "PWR";
+                    addList.clanName = "PWR_A";
+                    addList.UUID = chatPayload["uuid"].ToString();
+
+                    StaticDataManager.instance.staticUsersInfo.Add(addList);
+
+
+
+                    entry.GetComponent<UserData>().Init(
+                           false,
+                            chatPayload["username"].ToString(),
+                            "PWR",
+                           "PWR",
+                           chatPayload["uuid"].ToString());
+
+                }
+
                 MessageRecieve(true, chatPayload, mea.MessageResult.Timetoken, false);
+
+                if(mea.MessageResult.Channel == GetChannelNameGloble())
+                {
+                    UIManager.instance.globelMsgBg.SetActive(true);
+                    StaticDataManager.instance.globelMsg++;
+                    if(StaticDataManager.instance.globelMsg <= 99)
+                    {
+                       UIManager.instance.globelMsg.text = StaticDataManager.instance.globelMsg.ToString();
+                    }
+                    else
+                    {
+                        UIManager.instance.globelMsg.text = "99+";
+                    }
+                }
+
+                else if (mea.MessageResult.Channel == GetChannelNamePWR_BWR())
+                {
+                    UIManager.instance.modeMsgBg.SetActive(true);
+                    StaticDataManager.instance.modeMsg++;
+                    if (StaticDataManager.instance.modeMsg <= 99)
+                    {
+                        UIManager.instance.modeMsg.text = StaticDataManager.instance.modeMsg.ToString();
+                    }
+                    else
+                    {
+                        UIManager.instance.modeMsg.text = "99+";
+                    }
+                }
+               else if (mea.MessageResult.Channel == GetChannelNameClan())
+                {
+                    UIManager.instance.clanMsgBg.SetActive(true);
+                    StaticDataManager.instance.clanMsg++;
+                    if (StaticDataManager.instance.clanMsg <= 99)
+                    {
+                        UIManager.instance.clanMasg.text = StaticDataManager.instance.clanMsg.ToString();
+                    }
+                    else
+                    {
+                        UIManager.instance.clanMasg.text = "99+";
+                    }
+                }
+
+
             }
             else if(StaticDataManager.IsMineMsg)
             {
                 Debug.LogError($"this my massage sms {StaticDataManager.IsMineMsg}");
                 StaticDataManager.IsMineMsg = false;
             }
+           /* else if(StaticDataManager.instance.chatType == ChatType.Privete)
+            {
+                MessageRecieve(true, chatPayload, mea.MessageResult.Timetoken, false);
+            }*/
         }
         if (mea.PresenceEventResult != null)
         {
@@ -147,15 +249,15 @@ public class PubNubManager : MonoBehaviour
         }
     }
 
-    private void SubscribeToMyselfAndGroups(string UUID)
+    private void SubscribeToMyselfAndGroup(string UUID)
     {
         pubnub.Subscribe()
-            .Channels(new List<string> { GetChannelNamePrivate(UUID) , GetChannelNameGloble() , GetChannelNamePWR_BWR() , GetChannelNameClan()})
+            .Channels(new List<string> { GetChannelNamePrivate(UUID), GetChannelNameGloble(), GetChannelNamePWR_BWR(), GetChannelNameClan() })
             .WithPresence()
             .Execute();
 
-       /* if (StaticDataManager.instance.gameState == GameState.Testing)
-            StaticDataManager.deviceToken = "dvKaZa_7SLm_sISchFAxfz:APA91bEJLJHziSXGN0t_Z5EO3VSM2pAco3XCy0XHsU2VWy0Yukw70UPpLuqAumEYxMNSI0rTTWHKox_Ss7Fchik41_WyKi5mDh8QRJXejaXV-lVUd45cjl5ypjWYCYxPJLi7zmWxG3R0";*/
+        /* if (StaticDataManager.instance.gameState == GameState.Testing)
+             StaticDataManager.deviceToken = "dvKaZa_7SLm_sISchFAxfz:APA91bEJLJHziSXGN0t_Z5EO3VSM2pAco3XCy0XHsU2VWy0Yukw70UPpLuqAumEYxMNSI0rTTWHKox_Ss7Fchik41_WyKi5mDh8QRJXejaXV-lVUd45cjl5ypjWYCYxPJLi7zmWxG3R0";*/
 
         //AddPushToChannels(UUID, StaticDataManager.deviceToken);
     }
@@ -332,6 +434,7 @@ public class PubNubManager : MonoBehaviour
                 }
             });
         ChatUIManager.instance.chatInputField.text = "";
+        StaticDataManager.IsMineMsg = false;
     }
 
 
@@ -347,7 +450,7 @@ public class PubNubManager : MonoBehaviour
         Debug.Log(UUID_1 + ",\n" + UUID_2 + ",\n" + payload);
 
         pubnub.Publish()
-            .Channel(GetChannelNamePrivate(StaticDataManager.currentUserUUID))
+            .Channel(GetChannelNamePrivate(StaticDataManager.opponentUUID))
             .Message(payload)
             .Async((result, status) =>
             {
@@ -365,7 +468,7 @@ public class PubNubManager : MonoBehaviour
             });
 
         pubnub.Publish()
-            .Channel(GetHybridChannelName(StaticDataManager.myUUID, StaticDataManager.currentUserUUID))
+            .Channel(GetHybridChannelName(StaticDataManager.myUUID, StaticDataManager.opponentUUID))
             .Message(payload)
             .Async((result, status) =>
             {
@@ -377,6 +480,7 @@ public class PubNubManager : MonoBehaviour
             });
 
         ChatUIManager.instance.chatInputField.text = "";
+        StaticDataManager.IsMineMsg = false;
     }
 
     public void GetHistory(string id1, string id2, ushort numberOfMessage)

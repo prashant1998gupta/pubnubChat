@@ -26,7 +26,7 @@ public class SendChatBtnClick : MonoBehaviour
             {"uuid", StaticDataManager.myUUID},
             {"username", StaticDataManager.myName},
             {"text", ChatUIManager.instance.chatInputField.text},
-            {"chatID", StaticDataManager.myUUID + "_" + StaticDataManager.currentUserUUID},
+            {"chatID", StaticDataManager.myUUID + "_" + StaticDataManager.opponentUUID},
             {"chatType" , StaticDataManager.instance.chatType.ToString()}
         };
 
@@ -65,7 +65,7 @@ public class SendChatBtnClick : MonoBehaviour
         {
             PubNubManager.instance.SendMessageCall(
           StaticDataManager.myUUID,
-          StaticDataManager.currentUserUUID,
+          StaticDataManager.opponentUUID,
           payload);
         }
 

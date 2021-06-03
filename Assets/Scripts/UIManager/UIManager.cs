@@ -36,9 +36,29 @@ public class UIManager : MonoBehaviour
     public Button Globel;
     public Button PWR_BWR;
     public Button Clan;
+    public Button privateChat;
+
+
+    public GameObject clanMsgBg;
+    public GameObject modeMsgBg;
+    public GameObject globelMsgBg;
+
+
+    public Text clanMasg;
+    public Text modeMsg;
+    public Text globelMsg;
 
 
     public Button logOut;
+
+
+    [Header("Add user")]
+    public Button addUser;
+    public GameObject AddPanel;
+    public InputField userName;
+    public InputField UserID;
+    public Button addUserTolist;
+    public Button cancleButton;
 
    // public Action O
 
@@ -76,6 +96,10 @@ public class UIManager : MonoBehaviour
         PWRChackMark.SetActive(false);
         info.gameObject.SetActive(false);
 
+        clanMsgBg.SetActive(false);
+        globelMsgBg.SetActive(false);
+        modeMsgBg.SetActive(false);
+
         StaticDataManager.instance.ClanGroup = "";
         StaticDataManager.instance.ModeGroup = "";
 
@@ -83,6 +107,8 @@ public class UIManager : MonoBehaviour
 
         PWRClan.interactable = false;
         BWRClan.interactable = false;
+
+        addUserTolist.interactable = false;
 
         // BWRClan.gameObject.SetActive(false);
 
@@ -98,10 +124,90 @@ public class UIManager : MonoBehaviour
         PWR_BWR.onClick.AddListener(OnClickPWR_BWE);
         Globel.onClick.AddListener(OnClickGlobel);
         Clan.onClick.AddListener(OnClickClan);
+        privateChat.onClick.AddListener(OnClickOneToOneChat);
+
+
+        // add user
+        addUser.onClick.AddListener(userAdded);
+        userName.onValueChanged.AddListener(OnvalueChangeUser);
+        UserID.onValueChanged.AddListener(OnvalueChangInID);
+        addUserTolist.onClick.AddListener(OnAddUserButtonClick);
+        cancleButton.onClick.AddListener(OnCancleButtonClick);
 
     }
 
-  
+    private void OnCancleButtonClick()
+    {
+        AddPanel.SetActive(false);
+    }
+
+    private void userAdded()
+    {
+        AddPanel.SetActive(true);
+    }
+
+    private void OnAddUserButtonClick()
+    {
+      
+
+        GameObject entry1 = Instantiate(ChatUIManager.instance.userPrefab, ChatUIManager.instance.usersPrefabListContainer);
+
+        GameObject entry = entry1.transform.GetChild(0).gameObject;
+
+        entry1.transform.SetSiblingIndex(1);
+
+        entry.GetComponent<UserData>().isMine = false;
+        entry.GetComponent<UserData>().myName = userName.text;
+        entry.GetComponent<UserData>().gameModeName = "PWR";
+        entry.GetComponent<UserData>().clanName =  "PWR";
+        entry.GetComponent<UserData>().myUUID = UserID.text;
+
+        StaticUsersInfo addList = new StaticUsersInfo();
+        addList.isMine = false;
+        addList.userName = userName.text;
+        addList.gameModeName = "PWR";
+        addList.clanName = "PWR_A";
+        addList.UUID = UserID.text;
+
+        StaticDataManager.instance.staticUsersInfo.Add(addList);
+
+
+
+        entry.GetComponent<UserData>().Init(
+               false,
+               userName.text,
+                "PWR",
+               "PWR",
+               UserID.text);
+
+        AddPanel.SetActive(false);
+        userName.text = "";
+        UserID.text = "";
+    }
+
+    private void OnvalueChangInID(string arg0)
+    {
+        if (string.IsNullOrEmpty(UserID.text))
+        {
+            addUserTolist.interactable = false;
+        }
+        else
+        {
+            addUserTolist.interactable = true;
+        }
+    }
+
+    private void OnvalueChangeUser(string arg0)
+    {
+        if (string.IsNullOrEmpty(userName.text))
+        {
+            addUserTolist.interactable = false;
+        }
+        else
+        {
+            addUserTolist.interactable = true;
+        }
+    }
 
     private void OnSelectPWRClan(int arg0)
     {
@@ -200,6 +306,7 @@ public class UIManager : MonoBehaviour
     }
 
 
+   
 
 
     private void OnClickClan()
@@ -207,6 +314,7 @@ public class UIManager : MonoBehaviour
        // UserStateChange(true);
         StaticDataManager.instance.chatType = ChatType.Clan;
         chatTypeBtnClick.ClickOnChatType();
+       
 
     }
     private void OnClickGlobel()
@@ -221,5 +329,11 @@ public class UIManager : MonoBehaviour
        // UserStateChange(true);
         StaticDataManager.instance.chatType = ChatType.PWR_BWR;
         chatTypeBtnClick.ClickOnChatType();
+    }
+
+    private void OnClickOneToOneChat()
+    {
+        StaticDataManager.instance.chatType = ChatType.Privete;
+        ChatUIManager.instance.usersListPanel.SetActive(true);
     }
 }

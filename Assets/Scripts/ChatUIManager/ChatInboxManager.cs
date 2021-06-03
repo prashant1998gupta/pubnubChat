@@ -79,16 +79,16 @@ public class ChatInboxManager : MonoBehaviour
             {
                 isMineMassage = true;
                 otherUUID = IDs[1];
-                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.currentUserUUID}");
+                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.opponentUUID}");
             }
             else
             {
                 isMineMassage = false;
                 otherUUID = IDs[0];
-                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.currentUserUUID}");
+                Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.opponentUUID}");
             }
 
-            if (otherUUID == StaticDataManager.currentUserUUID || chatTypeOnButtonClick == chatType)
+            if (otherUUID == StaticDataManager.opponentUUID || chatTypeOnButtonClick == chatType)
             {
                 //Debug.Log("In here");
                 double messageTimestamp = timeToken / 10000000;

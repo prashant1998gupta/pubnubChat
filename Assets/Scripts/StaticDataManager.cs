@@ -14,6 +14,8 @@ public class StaticUsersInfo
 {
     public bool isMine;
     public string userName;
+    public string gameModeName;
+    public string clanName;
     public string UUID;
 }
 
@@ -45,7 +47,7 @@ public class StaticDataManager : MonoBehaviour
 
 
     [Header("Static Users Info")]
-    public List<StaticUsersInfo> staticUsersInfo = new List<StaticUsersInfo>();
+    public List<StaticUsersInfo> staticUsersInfo = new List<StaticUsersInfo>(20);
 
     [Header("My Details")]
     public static string deviceToken;
@@ -54,8 +56,13 @@ public class StaticDataManager : MonoBehaviour
 
     public static bool IsMineMsg = false;
 
+
+    public int clanMsg;
+    public int modeMsg;
+    public int globelMsg;
+
     [Header("OtherUserDetails")]
-    public static string currentUserUUID;
+    public static string opponentUUID;
 
     public static ushort maxMessagesToDisplay = 3;
     public static ushort HistoryMsgCount = 2;

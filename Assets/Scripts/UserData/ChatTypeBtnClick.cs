@@ -13,7 +13,8 @@ public class ChatTypeBtnClick : MonoBehaviour
         if(StaticDataManager.instance.chatType == ChatType.Globel || StaticDataManager.instance.chatType == ChatType.PWR_BWR || StaticDataManager.instance.chatType== ChatType.Clan)
         {
            UIManager.instance.ButtonPanel.SetActive(false);
-           if(StaticDataManager.instance.chatType == ChatType.Globel)
+            ChatUIManager.instance.otherUserNameText.text = StaticDataManager.instance.chatType.ToString();
+            if (StaticDataManager.instance.chatType == ChatType.Globel)
             {
                 PubNubManager.instance.FetchAllMsgForGroups(
                     StaticDataManager.myUUID, 
@@ -42,11 +43,11 @@ public class ChatTypeBtnClick : MonoBehaviour
             // ChatUIManager.instance.usersListPanel.SetActive(false);
 
             ChatUIManager.instance.otherUserNameText.text = GetComponent<UserData>().myName;
-            StaticDataManager.currentUserUUID = GetComponent<UserData>().myUUID;
+            StaticDataManager.opponentUUID = GetComponent<UserData>().myUUID;
 
             PubNubManager.instance.FetchAllMsgPrivate(
                 StaticDataManager.myUUID,
-                StaticDataManager.currentUserUUID,
+                StaticDataManager.opponentUUID,
                 StaticDataManager.maxMessagesToDisplay);
         }
 
