@@ -52,6 +52,8 @@ public class StaticDataManager : MonoBehaviour
     public static string myUUID;
     public static string myName;
 
+    public static bool IsMineMsg = false;
+
     [Header("OtherUserDetails")]
     public static string currentUserUUID;
 

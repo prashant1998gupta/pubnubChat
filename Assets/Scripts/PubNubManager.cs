@@ -2,7 +2,7 @@ using System;
 using PubNubAPI;
 using UnityEngine;
 using System.Collections.Generic;
-using Pathfinding.Serialization.JsonFx;
+//using Pathfinding.Serialization.JsonFx;
 //using Pathfinding.Serialization.JsonFx;
 
 public class PubNubManager : MonoBehaviour
@@ -89,7 +89,7 @@ public class PubNubManager : MonoBehaviour
     void SubscribeCallbackHandler(object sender, EventArgs e)
     {
         SubscribeEventEventArgs mea = e as SubscribeEventEventArgs;
-        Debug.LogWarning("Affacted Channel : " + JsonWriter.Serialize(mea.Status.AffectedChannels));
+       // Debug.LogWarning("Affacted Channel : " + JsonWriter.Serialize(mea.Status.AffectedChannels));
 
         if (mea.Status != null)
         {
@@ -111,8 +111,16 @@ public class PubNubManager : MonoBehaviour
             {
                 Debug.Log("Key : " + item.Key + " Value : " + item.Value);
             }*/
-
-            MessageRecieve(true, chatPayload, mea.MessageResult.Timetoken, false);
+            if(!StaticDataManager.IsMineMsg)
+            {
+                Debug.LogError($"this is not my sms {StaticDataManager.IsMineMsg}");
+                MessageRecieve(true, chatPayload, mea.MessageResult.Timetoken, false);
+            }
+            else if(StaticDataManager.IsMineMsg)
+            {
+                Debug.LogError($"this my massage sms {StaticDataManager.IsMineMsg}");
+                StaticDataManager.IsMineMsg = false;
+            }
         }
         if (mea.PresenceEventResult != null)
         {

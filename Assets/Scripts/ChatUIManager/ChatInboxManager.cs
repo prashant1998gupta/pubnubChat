@@ -63,6 +63,7 @@ public class ChatInboxManager : MonoBehaviour
     }
 
 
+    public bool isMineMassage = false;
 
     private void CreateChat(bool state, Dictionary<string, object> payLoad, long timeToken, bool isHistory)
     {
@@ -73,7 +74,6 @@ public class ChatInboxManager : MonoBehaviour
             Debug.Log($"this is chat type that send with msg {chatType} and current chat wiht button click is {chatTypeOnButtonClick}");
             string[] IDs;
             string otherUUID;
-            bool isMineMassage = false;
             IDs = payLoad["chatID"].ToString().Split('_');
             if (IDs[0] == StaticDataManager.myUUID)
             {
@@ -88,7 +88,7 @@ public class ChatInboxManager : MonoBehaviour
                 Debug.Log($"this is my uuid {otherUUID} and other uuid is {StaticDataManager.currentUserUUID}");
             }
 
-            if (otherUUID == StaticDataManager.currentUserUUID )//|| chatTypeOnButtonClick == chatType)
+            if (otherUUID == StaticDataManager.currentUserUUID || chatTypeOnButtonClick == chatType)
             {
                 //Debug.Log("In here");
                 double messageTimestamp = timeToken / 10000000;

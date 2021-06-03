@@ -30,6 +30,7 @@ public class SendChatBtnClick : MonoBehaviour
             {"chatType" , StaticDataManager.instance.chatType.ToString()}
         };
 
+        StaticDataManager.IsMineMsg = true;
         // Dictionary<string, object> payload = cpph.SetFCMPayload(fcm).SetCommonPayload(commonPayload).BuildPayload();
         Dictionary<string, object> payload = cpph.SetCommonPayload(commonPayload).BuildPayload();
 
